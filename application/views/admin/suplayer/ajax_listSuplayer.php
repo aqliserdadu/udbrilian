@@ -30,6 +30,31 @@
 <script>
 
 $('#tableS').DataTable({
+	dom: 'Bfrtip',
+        buttons: [
+            {
+                text:'Save To Excel',
+				extend: 'excelHtml5',
+				footer: true,
+                title: 'Daftar Suplayer',
+			},
+			{
+				extend: 'print',
+				title : 'Daftar SUplayer',
+				messageTop: '',
+				footer :true,
+                exportOptions: {
+                    columns: ':visible'
+                },
+				
+				
+            },
+            'colvis'
+        ],
+        columnDefs: [ {
+            visible: false
+        } ],
+
 
 });
 </script>

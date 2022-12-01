@@ -29,6 +29,29 @@
 						</table>
 <script>
 $('#tablest').DataTable({
-
+	dom: 'Bfrtip',
+        buttons: [
+            {
+                text:'Save To Excel',
+				extend: 'excelHtml5',
+				footer: true,
+                title: 'Daftar Pelanggan',
+			},
+			{
+				extend: 'print',
+				title : 'Daftar Pelanggan',
+				messageTop: '',
+				footer :true,
+                exportOptions: {
+                    columns: ':visible'
+                },
+				
+				
+            },
+            'colvis'
+        ],
+        columnDefs: [ {
+            visible: false
+        } ],
 });
 </script>
