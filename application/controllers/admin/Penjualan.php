@@ -722,6 +722,55 @@ class Penjualan extends CI_Controller
 		}
 	}
 
+	public function cekStokPop($idbarang, $pcs)
+	{
+
+		$idbarang = $idbarang;
+		$pcs = $pcs;
+		$dateNow = date('Y-m-d');
+
+		//cek apakah ada stock opname dibulan ini
+		//jika ada perhitungan di mulai tgl stock opname
+
+		$kode = "STOCKOPNAME" . date('Ym',strtotime($dateNow));;
+		$cek = $this->db->where('idheader', $kode)->get('header')->row();
+		if (!empty($cek)) {
+
+			$dateMulai = $cek->date;
+
+		} else {
+
+			$dateMulai = date('Y-m')."-01";
+		}
+
+
+
+		$masuk = $this->db->select('SUM(detail_header.qty) as qty, SUM(detail_header.totalharga) as harga')->from('header')->join('detail_header', 'detail_header.idheader=header.idheader')->where('header.status !=', 'pnj')->where('header.date >=',$dateMulai)->where('detail_header.idbarang', $idbarang)->like('detail_header.date', date('Y-m'))->group_by('detail_header.idbarang')->get()->result_array();
+		$keluar = $this->db->select('SUM(detail_header.qty) as qty')->from('header')->join('detail_header', 'detail_header.idheader=header.idheader')->where('header.status', 'pnj')->where('header.date >=',$dateMulai)->where('detail_header.idbarang', $idbarang)->like('detail_header.date', date('Y-m'))->group_by('detail_header.idbarang')->get()->result_array();
+
+
+		if ($idbarang == '000') {
+			echo json_encode(array('status' => true, 'ket' => 'success'));
+			die();
+		} else {
+
+			if (!empty($masuk)) {
+				$stok = ((int)$masuk[0]['qty']) - (!empty($keluar[0]['qty']) ? (int)$keluar[0]['qty'] : 0);
+				if ($pcs > $stok) {
+					echo json_encode(array('status' => false, 'ket' => 'Jumlah Pcs Melebihi Persediaan!'));
+					die();
+				} else {
+					$hargamodal = (int)$masuk[0]['harga'] / (!empty($masuk[0]['qty']) ? (int)$masuk[0]['qty'] : 0);
+					echo json_encode(array('status' => true, 'ket' => 'success', 'hargamodal' => round($hargamodal)));
+					die();
+				}
+			} else {
+				echo json_encode(array('status' => false, 'ket' => 'Periksa Kembali, Barang tidak tersedia!'));
+				die();
+			}
+		}
+	}
+
 
 	public function cekStok($tinggi, $lebar, $panjang, $pcsj)
 	{

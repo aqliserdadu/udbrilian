@@ -87,20 +87,21 @@ class Barang extends CI_Controller
 	{   //fungsi autocomplete pelanggan 
 
 		$cari = $this->input->get('term', true);
-		$auto = $this->db->select('*')->from('detail_header')->where('idbarang', $cari)->group_by('idbarang')->limit(10)->get()->result();
-
-
+		//$auto = $this->db->select('*')->from('detail_header')->like('idbarang', $cari,'left')->group_by('idbarang')->order_by('idbarang','ASC')->limit(10)->get()->result();
+		$auto = $this->db->query("SELECT * FROM detail_header WHERE idbarang LIKE '".$cari."%' GROUP BY idbarang ORDER BY idbarang ASC LIMIT 0,10")->result();
 
 		if (isset($cari)) {
 			if (count($auto) == 0) {
 				$arr_result[] = array(
-					'idbarang'			=> '',
+					'label'	=> '',
+					'idbarang'	=> '',
 				);
 			} else if (count($auto) > 0) {
 				foreach ($auto as $row) {
 
 					$arr_result[] = array(
-						'idbarang'			=> $row->idbarang,
+						'label'	=> $row->idbarang,
+						'idbarang'	=> $row->idbarang,
 						't'			=> $row->t,
 						'l'			=> $row->l,
 						'p'			=> $row->p,
@@ -511,22 +512,22 @@ class Barang extends CI_Controller
 			$stokMasukAwal = $this->db->select("SUM(qty) as qty, SUM(m3) as m3, SUM(hargasatuan) as hargasatuan, SUM(totalharga) as totalharga")->where('idheader', $idheader)->where('idbarang', $t->idbarang)->like('date', $date)->get('detail_header')->row();
 			$qtyAwal = empty($stokMasukAwal->qty) ? 0 : $stokMasukAwal->qty;
 			$m3Awal = empty($stokMasukAwal->m3) ? 0 : $stokMasukAwal->m3;
-			//$hargaSatuanAwal = empty($stokMasukAwal->hargasatuan) ? 0 : $stokMasukAwal->hargasatuan;
 			$totalHargaAwal = empty($stokMasukAwal->totalharga) ? 0 : $stokMasukAwal->totalharga;
+			$hargaSatuanAwal = empty($totalHargaAwal / $qtyAwal) ? 0 : $totalHargaAwal / $qtyAwal;
 
 			//barang masuk
 			$qtyMasukBerjalan = $this->db->select('SUM(detail_header.qty) as qty, SUM(detail_header.m3) as m3, SUM(detail_header.hargasatuan) as hargasatuan, SUM(detail_header.totalharga) as totalharga')->from('header')->join('detail_header', 'detail_header.idheader=header.idheader')->where('header.status','pmb')->where('detail_header.idbarang', $t->idbarang)->where('detail_header.date >=', $tglP)->where('detail_header.date <=', $tglK)->get()->row();
 			$qtyMasuk = empty($qtyMasukBerjalan->qty) ? 0 : $qtyMasukBerjalan->qty;
 			$m3Masuk =  empty($qtyMasukBerjalan->m3) ? 0 : $qtyMasukBerjalan->m3;
 			$totalHargaMasuk = empty($qtyMasukBerjalan->totalharga) ? 0 : $qtyMasukBerjalan->totalharga;
-			//$hargaSatuanMasuk = empty($totalHargaMasuk / $qtyMasuk) ? 0 : $totalHargaMasuk / $qtyMasuk;
+			$hargaSatuanMasuk = empty($totalHargaMasuk / $qtyMasuk) ? 0 : $totalHargaMasuk / $qtyMasuk;
 
 			//barang keluar
 			$qtyKeluarBerjalan = $this->db->select('SUM(detail_header.qty) as qty, SUM(detail_header.m3) as m3, SUM(detail_header.hargasatuan) as hargasatuan, SUM(detail_header.totalharga) as totalharga')->from('header')->join('detail_header', 'detail_header.idheader=header.idheader')->where('header.status', 'pnj')->where('detail_header.idbarang', $t->idbarang)->where('detail_header.date >=', $tglP)->where('detail_header.date <=', $tglK)->get()->row();
 			$qtyKeluar = empty($qtyKeluarBerjalan->qty) ? 0 : $qtyKeluarBerjalan->qty;
 			$m3Keluar = empty($qtyKeluarBerjalan->m3) ? 0 : $qtyKeluarBerjalan->m3;
 			$totalHargaKeluar = empty($qtyKeluarBerjalan->totalharga) ? 0 : $qtyKeluarBerjalan->totalharga;
-			//$hargaSatuanKeluar = empty($totalHargaKeluar / $qtyKeluar) ? 0 : $totalHargaKeluar / $qtyKeluar;
+			$hargaSatuanKeluar = empty($totalHargaKeluar / $qtyKeluar) ? 0 : $totalHargaKeluar / $qtyKeluar;
 
 
 			$hargatotalsisa = $totalHargaAwal + $totalHargaMasuk;
@@ -558,12 +559,15 @@ class Barang extends CI_Controller
 				'qtyawal' =>  $qtyAwal,
 				'm3awal' =>  round($m3Awal, 5),
 				'totalawal' => $totalHargaAwal,
+				'hargasatuanawal' => $hargaSatuanAwal,
 				'qtymasuk' => $qtyMasuk,
 				'm3masuk' => round($m3Masuk, 5),
 				'totalmasuk' => $totalHargaMasuk,
+				'hargasatuanmasuk' => $hargaSatuanMasuk,
 				'qtykeluar' => $qtyKeluar,
 				'm3keluar' => round($m3Keluar, 5),
 				'totalkeluar' => $totalHargaKeluar,
+				'hargasatuankeluar' => $hargaSatuanKeluar,
 				'qtysisa' => (($qtyAwal + $qtyMasuk) - $qtyKeluar),
 				'm3sisa' => round(($m3Awal + $m3Masuk) - $m3Keluar, 5),
 				'hargasisa' => $hargasisa,

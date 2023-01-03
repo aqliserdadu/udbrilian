@@ -1,6 +1,6 @@
 <section class="content-header" style="background-color:white; padding-bottom:6px">
 	<h1>
-		Stok Barang
+		Pergerakan Stok Barang
 		<small>Control panel</small>
 	</h1>
 	<ol class="breadcrumb">
@@ -54,12 +54,15 @@
 									<th>ID</th>
 									<th style="background-color:#FFFFA7">Qty A</th>
 									<th style="background-color:#FFFFA7">M3 A</th>
+									<th style="background-color:#FFFFA7">Satuan A</th>
 									<th style="background-color:#FFFFA7">Total A</th>
 									<th style="background-color:#99EE99">Qty M</th>
 									<th style="background-color:#99EE99">M3 M</th>
+									<th style="background-color:#99EE99">Satuan M</th>
 									<th style="background-color:#99EE99">Total M</th>
 									<th style="background-color:#FFCCCB">Qty K</th>
 									<th style="background-color:#FFCCCB">M3 K</th>
+									<th style="background-color:#FFCCCB">Satuan K</th>
 									<th style="background-color:#FFCCCB">Total K</th>
 									<th>Qty</th>
 									<th>M3</th>
@@ -116,14 +119,17 @@
 										<td><?php echo $tp['idbarang']; ?></td>
 										<td style="background-color:#FFFFA7"><?php echo $tp['qtyawal']; ?></td>
 										<td style="background-color:#FFFFA7"><?php echo $tp['m3awal']; ?></td>
+										<td style="background-color:#FFFFA7"><?php echo number_format($tp['hargasatuanawal'], 2); ?></td>
 										<td style="background-color:#FFFFA7"><?php echo number_format($tp['totalawal'], 2); ?></td>
 
 										<td style="background-color:#99EE99"><?php echo $tp['qtymasuk']; ?></td>
 										<td style="background-color:#99EE99"><?php echo $tp['m3masuk']; ?></td>
+										<td style="background-color:#99EE99"><?php echo number_format($tp['hargasatuanmasuk'], 2); ?></td>
 										<td style="background-color:#99EE99"><?php echo number_format($tp['totalmasuk'], 2); ?></td>
 
 										<td style="background-color:#FFCCCB"><?php echo $tp['qtykeluar']; ?></td>
 										<td style="background-color:#FFCCCB"><?php echo $tp['m3keluar']; ?></td>
+										<td style="background-color:#FFCCCB"><?php echo number_format($tp['hargasatuankeluar'], 2); ?></td>
 										<td style="background-color:#FFCCCB"><?php echo number_format($tp['totalkeluar'], 2); ?></td>
 
 										<td style="background-color:#7FFFD4"><?php echo $tp['qtysisa']; ?></td>
@@ -140,14 +146,17 @@
 									<td colspan="2" align="center">Total</td>
 									<td align="center" style="background-color:#FFFFA7"><?php echo $qtyawal; ?></td>
 									<td align="center" style="background-color:#FFFFA7"><?php echo $m3awal; ?></td>
+									<td align="center" style="background-color:#FFFFA7"></td>
 									<td align="center" style="background-color:#FFFFA7"><?php echo number_format($totalawal, 2); ?></td>
 
 									<td align="center" style="background-color:#99EE99"><?php echo $qtymasuk; ?></td>
 									<td align="center" style="background-color:#99EE99"><?php echo $m3masuk; ?></td>
+									<td align="center" style="background-color:#99EE99"></td>
 									<td align="center" style="background-color:#99EE99"><?php echo number_format($totalmasuk, 2); ?></td>
 
 									<td align="center" style="background-color:#FFCCCB"><?php echo $qtykeluar; ?></td>
 									<td align="center" style="background-color:#FFCCCB"><?php echo $m3keluar; ?></td>
+									<td align="center" style="background-color:#FFCCCB"></td>
 									<td align="center" style="background-color:#FFCCCB"><?php echo number_format($totalkeluar, 2); ?></td>
 
 									<td align="center"><?php echo $qtysisa; ?></td>
