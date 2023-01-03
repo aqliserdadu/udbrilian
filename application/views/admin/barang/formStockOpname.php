@@ -173,11 +173,6 @@
 
 
 <script type="text/javascript">
-	$("#date").datepicker({
-
-		"dateFormat": "yy-mm-dd"
-
-	});
 
 
 	function getIdBarang(angka) {
