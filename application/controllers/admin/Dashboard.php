@@ -269,9 +269,11 @@ class Dashboard extends CI_Controller
 			$tglK = trim($this->input->post('tglK', true));
 			$idsuplayer = trim($this->input->post('idsuplayer', true));
 			$iduser = trim($this->input->post('iduser', true));
+			$jenis = $this->input->post('jenis', true);
 
+			if ($jenis == "rinci") {
 
-			$data['data'] = $this->db->select('header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, user.username, header.date, suplayer.namasuplayer, suplayer.alamatsuplayer, header.totalharga')->from('header')
+				$data['data'] = $this->db->select('header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, user.username, header.date, suplayer.namasuplayer, suplayer.alamatsuplayer, header.totalharga, 0 AS jumlah')->from('header')
 				->join('detail_header', 'detail_header.idheader=header.idheader')
 				->join('user', 'user.iduser=header.iduser')
 				->join('suplayer', 'suplayer.idsuplayer=header.idsuplayer')
@@ -283,8 +285,41 @@ class Dashboard extends CI_Controller
 				->group_by('header.idheader')
 				->order_by('detail_header.iddetail', 'desc')
 				->get()->result();
+				$data['jenis'] = $jenis;
+				$data['user'] = $iduser;
+				$data['titlel'] = 'Laporan Pembelian';
+				$this->load->view('admin/dashboard/ajax_laporanPembelian', $data);
+			} else {
 
-			$this->load->view('admin/dashboard/ajax_laporanPembelian', $data);
+				if($iduser == ""){
+
+					$filterUser = "";
+					$group = "header.idsuplayer";
+
+				}else{
+
+					$filterUser = "AND iduser=user.iduser";
+					$group = "header.idsuplayer,user.iduser";
+				}
+
+				$jumlah = " (SELECT COUNT(idheader) FROM header WHERE date >='".$tglP."' AND date <= '".$tglK."' AND status ='pmb' AND idsuplayer=suplayer.idsuplayer ".$filterUser."  GROUP BY idsuplayer ) AS jumlah";
+				$data['data'] = $this->db->select("header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, user.username, header.date, suplayer.namasuplayer, suplayer.alamatsuplayer, SUM(header.totalharga) AS totalharga,$jumlah")->from('header')
+				->join('detail_header', 'detail_header.idheader=header.idheader')
+				->join('user', 'user.iduser=header.iduser')
+				->join('suplayer', 'suplayer.idsuplayer=header.idsuplayer')
+				->where('header.date >=', $tglP)
+				->where('header.date <=', $tglK)
+				->where('header.status', 'pmb')
+				->like('header.iduser', $iduser)
+				->like('header.idsuplayer', $idsuplayer)
+				->group_by($group)
+				->order_by('detail_header.iddetail', 'desc')
+				->get()->result();
+				$data['jenis'] = $jenis;
+				$data['user'] = $iduser;
+				$data['titlel'] = 'Laporan Rekap Pembelian';
+				$this->load->view('admin/dashboard/ajax_laporanPembelian', $data);
+			}
 		}
 	}
 
@@ -326,22 +361,65 @@ class Dashboard extends CI_Controller
 			$tglK = trim($this->input->post('tglK', true));
 			$idpelanggan = trim($this->input->post('idpelanggan', true));
 			$iduser = trim($this->input->post('iduser', true));
+			$jenis = $this->input->post('jenis', true);
+
+			if ($jenis == "rinci") {
+
+				
+				$data['data'] = $this->db->select('header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, ((SUM((detail_header.hargasatuan-detail_header.hargamodal)*detail_header.qty)) - header.diskon) as laba, user.username, header.date, pelanggan.namapelanggan, pelanggan.alamatpelanggan, header.totalharga, 0 AS jumlah')->from('header')
+					->join('detail_header', 'detail_header.idheader=header.idheader')
+					->join('user', 'user.iduser=header.iduser')
+					->join('pelanggan', 'pelanggan.idpelanggan=header.idpelanggan')
+					->where('header.date >=', $tglP)
+					->where('header.date <=', $tglK)
+					->where('header.status', 'pnj')
+					->like('header.iduser', $iduser)
+					->like('header.idpelanggan', $idpelanggan)
+					->group_by('header.idheader')
+					->order_by('detail_header.iddetail', 'desc')
+					->get()->result();
+
+				$data['jenis'] = $jenis;
+				$data['user'] = $iduser;
+				$data['titlel'] = 'Laporan Penjualan ';
+
+				$this->load->view('admin/dashboard/ajax_laporanPenjualan', $data);
+
+			}else{
+
+				if($iduser == ""){
+
+					$filterUser = "";
+					$group = "header.idpelanggan";
+
+				}else{
+
+					$filterUser = "AND iduser=user.iduser";
+					$group = "header.idpelanggan,user.iduser";
+				}
+
+				$jumlah = " (SELECT COUNT(idheader) FROM header WHERE date >='".$tglP."' AND date <= '".$tglK."' AND status ='pnj' AND idpelanggan=pelanggan.idpelanggan ".$filterUser."  GROUP BY idsuplayer ) AS jumlah";
+				$data['data'] = $this->db->select("header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, ((SUM((detail_header.hargasatuan-detail_header.hargamodal)*detail_header.qty)) - header.diskon) as laba, user.username, header.date, pelanggan.namapelanggan, pelanggan.alamatpelanggan, SUM(header.totalharga) as totalharga,$jumlah")->from('header')
+					->join('detail_header', 'detail_header.idheader=header.idheader')
+					->join('user', 'user.iduser=header.iduser')
+					->join('pelanggan', 'pelanggan.idpelanggan=header.idpelanggan')
+					->where('header.date >=', $tglP)
+					->where('header.date <=', $tglK)
+					->where('header.status', 'pnj')
+					->like('header.iduser', $iduser)
+					->like('header.idpelanggan', $idpelanggan)
+					->group_by($group)
+					->order_by('detail_header.iddetail', 'desc')
+					->get()->result();
+				
+					$data['jenis'] = $jenis;
+					$data['user'] = $iduser;
+					$data['titlel'] = 'Laporan Rekap Penjualan ';
 
 
-			$data['data'] = $this->db->select('header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, ((SUM((detail_header.hargasatuan-detail_header.hargamodal)*detail_header.qty)) - header.diskon) as laba, user.username, header.date, pelanggan.namapelanggan, pelanggan.alamatpelanggan, header.totalharga')->from('header')
-				->join('detail_header', 'detail_header.idheader=header.idheader')
-				->join('user', 'user.iduser=header.iduser')
-				->join('pelanggan', 'pelanggan.idpelanggan=header.idpelanggan')
-				->where('header.date >=', $tglP)
-				->where('header.date <=', $tglK)
-				->where('header.status', 'pnj')
-				->like('header.iduser', $iduser)
-				->like('header.idpelanggan', $idpelanggan)
-				->group_by('header.idheader')
-				->order_by('detail_header.iddetail', 'desc')
-				->get()->result();
+					$this->load->view('admin/dashboard/ajax_laporanPenjualan', $data);
 
-			$this->load->view('admin/dashboard/ajax_laporanPenjualan', $data);
+			}	
 		}
 	}
 

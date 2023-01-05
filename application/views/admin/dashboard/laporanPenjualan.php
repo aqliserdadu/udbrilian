@@ -51,7 +51,14 @@
 							<span class="input-group-addon" id="basic-addon1">Custamer</span>
 							<input type="hidden" name="idpelanggan" id="idpelanggan" required class="form-control">
 							<input type="text" name="namapelanggan" id="namapelanggan" required class="form-control" placeholder="Custamer">
-									
+						</div>
+
+						<div class="input-group">
+							<span class="input-group-addon" id="basic-addon1">Jenis</span>
+							<select name="jenis" class="form-control">
+								<option value="rinci">Rinci</option>
+								<option value="rekap">Rekap</option>
+							</select>
 							<span class="input-group-btn">
 									<button id="cari" class="btn btn-info"><i class="fa fa-search"></i></button>
 							</span>
