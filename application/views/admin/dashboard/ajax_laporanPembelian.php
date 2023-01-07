@@ -54,7 +54,7 @@ table tfoot  {
 										<?php };?>
 										<?php if(empty($user) && $jenis == 'rinci'){;?>	
 										<td><?php echo $tp->username;?></td>
-										<?};?>
+										<?php };?>
 										<td><?php echo $tp->namasuplayer." ".$tp->alamatsuplayer;?></td>
 										<?php if($jenis == 'rekap'){;?>	
 										<td><?php echo $tp->jumlah;?></td>

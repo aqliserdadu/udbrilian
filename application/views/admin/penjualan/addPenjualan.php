@@ -51,9 +51,22 @@
 								</td>
 							</tr>
 							<tr>
+								<td style="background-color:#7FFFD4" width="100px">Stock :</td>
+								<td>
+									<input type="text" class="form-control" name="ambilstok" id="ambilstok" placeholder="Stock Tersedia" readonly>
+								</td>
+							</tr>
+							<tr>
 								<td style="background-color:#7FFFD4" width="100px">Pcs :</td>
 								<td>
 									<input type="number" class="form-control" name="pcs" id="pcs" placeholder="PCS">
+								</td>
+							</tr>
+							<tr>
+								<td style="background-color:#7FFFD4" width="100px">Harga modal :</td>
+								<td>
+									<input type="text" class="form-control" name="hargamodal" id="hargamodal" readonly placeholder="Harga Modal">
+
 								</td>
 							</tr>
 							<tr>
@@ -234,6 +247,8 @@
 				alert("Custamer Harap Diisi!");
 				$("#namapelanggan").focus();
 			} else {
+				ambilStok(ui.item.t, ui.item.l, ui.item.p);
+				ambilModal(ui.item.t, ui.item.l, ui.item.p);
 				showHarga(ui.item.t, ui.item.l, ui.item.p, 0, $("#idpelanggan").val());
 				$("#pcs").focus();
 				$("#t").val(ui.item.t);
@@ -249,6 +264,121 @@
 			.append("<div>" + item.label + "</div>")
 			.appendTo(ul);
 	}
+
+
+
+	function ambilStok(tinggi, lebar, panjang) {
+
+		$.ajax({
+
+			url: '<?php echo base_url('admin/Penjualan/ambilStok'); ?>' + '/' + tinggi + '/' + lebar + '/' + panjang,
+			type: "POST",
+			dataType: "JSON",
+
+			beforeSend: function() {
+				$("#loading").html("<img src='<?php echo base_url('asset/images/loading.gif'); ?>'> <p style='text-align:center;margin-top: -130px;'>Harap Tunggu</p>");
+				//$(".preloader").show();
+			},
+
+			success: function(data) {
+
+				$("#ambilstok").val(data.stok);
+
+
+				//$('#formPenjualan')[0].reset();
+			},
+			complete: function(data) {
+				//$(".preloader").hide();
+
+			},
+			error: function(xhr, textStatus) {
+
+				var msg = '';
+
+				if (xhr.status === 0) {
+					msg = 'Tidak ada jaringan, Periksa koneksi jaringan';
+				} else if (xhr.status == 404) {
+					msg = ' Halaman web tidak ditemukan [404]';
+				} else if (xhr.status == 505) {
+					msg = ' Internal Server Error [505]';
+				} else if (text.status === 'timeout') {
+					msg = 'Time Out Error, Ulangi Kembali';
+				} else {
+					msg = ' Uncaughr Error.\n' + xhr.responseText;
+				}
+				alert(msg);
+
+				$("#info").fadeIn('slow');
+				$("#info").html("<div class='alert-denger' align='center'> Gagal Disimpan </div>")
+				$("#info").fadeOut('slow');
+
+
+			},
+
+
+
+
+
+		})
+
+	}
+
+	function ambilModal(tinggi, lebar, panjang) {
+
+		$.ajax({
+
+			url: '<?php echo base_url('admin/Penjualan/ambilModal'); ?>' + '/' + tinggi + '/' + lebar + '/' + panjang,
+			type: "POST",
+			dataType: "JSON",
+
+			beforeSend: function() {
+				$("#loading").html("<img src='<?php echo base_url('asset/images/loading.gif'); ?>'> <p style='text-align:center;margin-top: -130px;'>Harap Tunggu</p>");
+				//$(".preloader").show();
+			},
+
+			success: function(data) {
+
+				$("#hargamodal").val(formatUang(data.hargamodal));
+
+
+				//$('#formPenjualan')[0].reset();
+			},
+			complete: function(data) {
+				//$(".preloader").hide();
+
+			},
+			error: function(xhr, textStatus) {
+
+				var msg = '';
+
+				if (xhr.status === 0) {
+					msg = 'Tidak ada jaringan, Periksa koneksi jaringan';
+				} else if (xhr.status == 404) {
+					msg = ' Halaman web tidak ditemukan [404]';
+				} else if (xhr.status == 505) {
+					msg = ' Internal Server Error [505]';
+				} else if (text.status === 'timeout') {
+					msg = 'Time Out Error, Ulangi Kembali';
+				} else {
+					msg = ' Uncaughr Error.\n' + xhr.responseText;
+				}
+				alert(msg);
+
+				$("#info").fadeIn('slow');
+				$("#info").html("<div class='alert-denger' align='center'> Gagal Disimpan </div>")
+				$("#info").fadeOut('slow');
+
+
+			},
+
+
+
+
+
+		})
+
+	}
+
 
 	$("#pcs").keyup(function() {
 
@@ -284,7 +414,7 @@
 
 						} else {
 							$("#harga").focus();
-							$("#hargamodal").val(data.hargamodal);
+							$("#hargamodal").val(formatUang(data.hargamodal));
 						}
 
 
@@ -428,8 +558,11 @@
 			// reset
 			$("#idbarang").val('');
 			$("#pcs").val('');
+			$("#ambilstok").val('');
+			$("#hargamodal").val('');
 			$("#harga").val('');
 			$("#ket").val('');
+
 			$("#idbarang").focus();
 
 		}
@@ -598,6 +731,7 @@
 
 		}
 		idbarang(t, l, p, angka);
+		ambilModalLine(t, l, p,angka);
 
 
 
@@ -618,6 +752,7 @@
 
 		}
 		idbarang(t, l, p, angka);
+		ambilModalLine(t, l, p,angka);
 
 	}
 
@@ -637,6 +772,7 @@
 
 		}
 		idbarang(t, l, p, angka);
+		ambilModalLine(t, l, p,angka);
 
 
 
@@ -646,6 +782,69 @@
 		var idbarang = t.toString() + l.toString() + p.toString();
 		$("#idbarang" + angka).val(idbarang);
 	}
+
+
+	function ambilModalLine(tinggi, lebar, panjang,angka) {
+
+		$.ajax({
+
+			url: '<?php echo base_url('admin/Penjualan/ambilModal'); ?>' + '/' + tinggi + '/' + lebar + '/' + panjang,
+			type: "POST",
+			dataType: "JSON",
+
+			beforeSend: function() {
+				$("#loading").html("<img src='<?php echo base_url('asset/images/loading.gif'); ?>'> <p style='text-align:center;margin-top: -130px;'>Harap Tunggu</p>");
+				//$(".preloader").show();
+			},
+
+			success: function(data) {
+
+				var hargamodal = data.hargamodal;
+				if(hargamodal != null || hargamodal !='' ){
+					$("#hargamodal"+angka).val(formatUang(data.hargamodal));
+				}else{
+					alert("Periksa Kembali, Barang tidak tersedia!");
+				}
+
+				//$('#formPenjualan')[0].reset();
+			},
+			complete: function(data) {
+				//$(".preloader").hide();
+
+			},
+			error: function(xhr, textStatus) {
+
+				var msg = '';
+
+				if (xhr.status === 0) {
+					msg = 'Tidak ada jaringan, Periksa koneksi jaringan';
+				} else if (xhr.status == 404) {
+					msg = ' Halaman web tidak ditemukan [404]';
+				} else if (xhr.status == 505) {
+					msg = ' Internal Server Error [505]';
+				} else if (text.status === 'timeout') {
+					msg = 'Time Out Error, Ulangi Kembali';
+				} else {
+					msg = ' Uncaughr Error.\n' + xhr.responseText;
+				}
+				alert(msg);
+
+				$("#info").fadeIn('slow');
+				$("#info").html("<div class='alert-denger' align='center'> Gagal Disimpan </div>")
+				$("#info").fadeOut('slow');
+
+
+			},
+
+
+
+
+
+		})
+
+	}
+
+
 
 
 	function hitungPcs(angka) {

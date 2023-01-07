@@ -513,8 +513,8 @@
 		if (event.keyCode === 13) {
 			$("#l" + angka).focus();
 		}
-		idbarang(t, l, p, angka)
-
+		idbarang(t, l, p, angka);
+		hitungUlangHarga(angka);
 
 	}
 
@@ -531,7 +531,8 @@
 		if (event.keyCode === 13) {
 			$("#p" + angka).focus();
 		}
-		idbarang(t, l, p, angka)
+		idbarang(t, l, p, angka);
+		hitungUlangHarga(angka);
 
 
 	}
@@ -550,7 +551,8 @@
 			$("#pcs" + angka).focus();
 			$("#pcs" + angka).val('');
 		}
-		idbarang(t, l, p, angka)
+		idbarang(t, l, p, angka);
+		hitungUlangHarga(angka);
 
 
 	}
@@ -561,6 +563,42 @@
 	}
 
 
+
+
+	function hitungUlangHarga(angka) {
+
+
+		var t = $("#t" + angka).val();
+		var l = $("#l" + angka).val();
+		var p = $("#p" + angka).val();
+		var pcs = $("#pcs" + angka).val();
+		var idsuplayer = $("#idsuplayer").val()
+	
+		var m3 = (parseInt(t) * parseInt(l) * parseInt(p) * parseInt(pcs)) / 1000000;
+		$("#m3" + angka).val(m3);
+
+		//menjumlahkan total
+		jumlahBaris = document.getElementById('table').rows.length;
+		jumlah = parseInt(jumlahBaris) - parseInt(9);
+
+		var totalpcs = 0;
+		var totalm3 = 0;
+		for (i = 1; i <= jumlah; i++) {
+
+			var totalpcs = parseInt(totalpcs) + parseInt($("#pcs" + i).val());
+			var totalm3 = parseFloat(totalm3) + parseFloat($("#m3" + i).val());
+
+		}
+		$("#totalpcs").val(totalpcs);
+		$("#totalm3").val(totalm3);
+
+		hargaM3p(angka);
+		showHarga(t, l, p, pcs, idsuplayer);
+
+
+
+
+	}
 
 	function hitungPcs(angka) {
 

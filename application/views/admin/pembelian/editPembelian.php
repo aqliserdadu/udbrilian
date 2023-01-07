@@ -218,7 +218,7 @@
 							</table>
 
 							<div class="col-md-12" align="right" style="padding-top:10px">
-								<button type="button" class="btn btn-danger" id="kembali" onclick="kembali()"><i>Kembali</i></button>
+								<button type="button" class="btn btn-danger" id="kembali"><i>Kembali</i></button>
 								<button type="button" class="btn btn-warning" id="print1" disabled><i class="fa fa-print"> Print 1</i></button>
 								<button type="button" class="btn btn-warning" id="print2" disabled><i class="fa fa-print"> Print 2</i></button>
 								<button type="button" class="btn btn-info" id="update"><i class="fa fa-reset">Upadate</i></button>
@@ -474,7 +474,7 @@
 	});
 
 
-	function kembali() {
+	$("#kembali").click(function() {
 
 		$.ajax({
 
@@ -523,7 +523,7 @@
 		});
 
 
-	}
+	})
 
 
 	function getIdBarang(angka) {
@@ -588,7 +588,8 @@
 		if (event.keyCode === 13) {
 			$("#l" + angka).focus();
 		}
-		idbarang(t, l, p, angka)
+		idbarang(t, l, p, angka);
+		hitungUlangHarga(angka);
 	}
 
 	function hitungL(angka) {
@@ -604,7 +605,8 @@
 		if (event.keyCode === 13) {
 			$("#p" + angka).focus();
 		}
-		idbarang(t, l, p, angka)
+		idbarang(t, l, p, angka);
+		hitungUlangHarga(angka);
 
 
 	}
@@ -623,7 +625,8 @@
 			$("#pcs" + angka).focus();
 			$("#pcs" + angka).val('');
 		}
-		idbarang(t, l, p, angka)
+		idbarang(t, l, p, angka);
+		hitungUlangHarga(angka);
 
 
 	}
@@ -633,6 +636,46 @@
 		var idbarang = t.toString() + l.toString() + p.toString();
 		$("#idbarang" + angka).val(idbarang);
 	}
+
+
+
+	function hitungUlangHarga(angka) {
+
+
+		var t = $("#t" + angka).val();
+		var l = $("#l" + angka).val();
+		var p = $("#p" + angka).val();
+		var pcs = $("#pcs" + angka).val();
+		var idsuplayer = $("#idsuplayer").val()
+
+		var m3 = (parseInt(t) * parseInt(l) * parseInt(p) * parseInt(pcs)) / 1000000;
+		$("#m3" + angka).val(m3);
+
+		//menjumlahkan total
+		jumlahBaris = document.getElementById('table').rows.length;
+		jumlah = parseInt(jumlahBaris) - parseInt(9);
+
+		var totalpcs = 0;
+		var totalm3 = 0;
+		for (i = 1; i <= jumlah; i++) {
+
+			var totalpcs = parseInt(totalpcs) + parseInt($("#pcs" + i).val());
+			var totalm3 = parseFloat(totalm3) + parseFloat($("#m3" + i).val());
+
+		}
+		$("#totalpcs").val(totalpcs);
+		$("#totalm3").val(totalm3);
+
+		hargaM3p(angka);
+		showHarga(t, l, p, pcs, idsuplayer);
+
+
+
+
+	}
+
+
+
 
 	function hitungPcs(angka) {
 
@@ -714,7 +757,7 @@
 		piutang();
 		fsBongkar();
 		fsTransport();
-		fsBayar();
+		//fsBayar();
 
 	}
 
@@ -768,7 +811,7 @@
 		piutang();
 		fsBongkar();
 		fsTransport();
-		fsBayar();
+		//fsBayar();
 
 	}
 
@@ -809,7 +852,7 @@
 
 		fsBongkar();
 		fsTransport();
-		fsBayar();
+		//fsBayar();
 
 	})
 
@@ -821,7 +864,7 @@
 		$("#totalsetelahbongkar").val(formatUang(hitung));
 
 		fsTransport();
-		fsBayar();
+		//fsBayar();
 
 
 	}
@@ -834,7 +877,7 @@
 		$("#totalsetelahtransport").val(formatUang(hitung));
 		$("#totalpembayaran").val(formatUang(hitung));
 
-		fsBayar();
+		//fsBayar();
 
 	}
 

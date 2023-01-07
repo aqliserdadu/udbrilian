@@ -291,30 +291,36 @@ class Dashboard extends CI_Controller
 				$this->load->view('admin/dashboard/ajax_laporanPembelian', $data);
 			} else {
 
-				if($iduser == ""){
+				$sql ="
+						SELECT COUNT(idheader) AS jumlah, SUM(totalqty) AS totalqty, SUM(totalm3) AS totalm3, username, namasuplayer,alamatsuplayer, SUM(totalharga) AS totalharga 
+						FROM (
+							SELECT 
+								`header`.`idheader`, 
+								`header`.`idsuplayer`,
+								SUM(detail_header.qty) AS totalqty, 
+								SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) AS totalm3, 
+								`user`.`username`, 
+								`header`.`date`, 
+								`suplayer`.`namasuplayer`, 
+								`suplayer`.`alamatsuplayer`, 
+								`header`.`totalharga`, 
+								0 AS `jumlah` 
+							FROM `header` 
+							JOIN `detail_header` ON `detail_header`.`idheader`=`header`.`idheader` 
+							JOIN `user` ON `user`.`iduser`=`header`.`iduser` 
+							JOIN `suplayer` ON `suplayer`.`idsuplayer`=`header`.`idsuplayer` 
+							WHERE 
+								`header`.`date` >= '".$tglP."' AND 
+								`header`.`date` <= '".$tglK."' AND 
+								`header`.`status` = 'pmb' AND 
+								`header`.`iduser` LIKE '%".$iduser."%' AND 
+								`header`.`idsuplayer` LIKE '%".$idsuplayer."%' 
+							GROUP BY `header`.`idheader`
+						) AS gabung GROUP BY idsuplayer";
 
-					$filterUser = "";
-					$group = "header.idsuplayer";
 
-				}else{
-
-					$filterUser = "AND iduser=user.iduser";
-					$group = "header.idsuplayer,user.iduser";
-				}
-
-				$jumlah = " (SELECT COUNT(idheader) FROM header WHERE date >='".$tglP."' AND date <= '".$tglK."' AND status ='pmb' AND idsuplayer=suplayer.idsuplayer ".$filterUser."  GROUP BY idsuplayer ) AS jumlah";
-				$data['data'] = $this->db->select("header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, user.username, header.date, suplayer.namasuplayer, suplayer.alamatsuplayer, SUM(header.totalharga) AS totalharga,$jumlah")->from('header')
-				->join('detail_header', 'detail_header.idheader=header.idheader')
-				->join('user', 'user.iduser=header.iduser')
-				->join('suplayer', 'suplayer.idsuplayer=header.idsuplayer')
-				->where('header.date >=', $tglP)
-				->where('header.date <=', $tglK)
-				->where('header.status', 'pmb')
-				->like('header.iduser', $iduser)
-				->like('header.idsuplayer', $idsuplayer)
-				->group_by($group)
-				->order_by('detail_header.iddetail', 'desc')
-				->get()->result();
+				$data['data'] = $this->db->query($sql)->result();
+				
 				$data['jenis'] = $jenis;
 				$data['user'] = $iduser;
 				$data['titlel'] = 'Laporan Rekap Pembelian';
@@ -387,30 +393,38 @@ class Dashboard extends CI_Controller
 
 			}else{
 
-				if($iduser == ""){
+				
 
-					$filterUser = "";
-					$group = "header.idpelanggan";
+				$sql ="
+						SELECT COUNT(idheader) AS jumlah, SUM(totalqty) AS totalqty, SUM(totalm3) AS totalm3, SUM(laba) AS laba, username, namapelanggan,alamatpelanggan, SUM(totalharga) AS totalharga 
+						FROM (
+							SELECT 
+								`header`.`idheader`, 
+								`header`.`idpelanggan`,
+								SUM(detail_header.qty) AS totalqty, 
+								SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) AS totalm3, 
+								((SUM((detail_header.hargasatuan-detail_header.hargamodal)*detail_header.qty)) - header.diskon) AS laba, 
+								`user`.`username`, 
+								`header`.`date`, 
+								`pelanggan`.`namapelanggan`, 
+								`pelanggan`.`alamatpelanggan`, 
+								`header`.`totalharga`, 
+								0 AS `jumlah` 
+							FROM `header` 
+							JOIN `detail_header` ON `detail_header`.`idheader`=`header`.`idheader` 
+							JOIN `user` ON `user`.`iduser`=`header`.`iduser` 
+							JOIN `pelanggan` ON `pelanggan`.`idpelanggan`=`header`.`idpelanggan` 
+							WHERE 
+								`header`.`date` >= '".$tglP."' AND 
+								`header`.`date` <= '".$tglK."' AND 
+								`header`.`status` = 'pnj' AND 
+								`header`.`iduser` LIKE '%".$iduser."%' AND 
+								`header`.`idpelanggan` LIKE '%".$idpelanggan."%' 
+							GROUP BY `header`.`idheader`
+						) AS gabung GROUP BY idpelanggan";
 
-				}else{
 
-					$filterUser = "AND iduser=user.iduser";
-					$group = "header.idpelanggan,user.iduser";
-				}
-
-				$jumlah = " (SELECT COUNT(idheader) FROM header WHERE date >='".$tglP."' AND date <= '".$tglK."' AND status ='pnj' AND idpelanggan=pelanggan.idpelanggan ".$filterUser."  GROUP BY idsuplayer ) AS jumlah";
-				$data['data'] = $this->db->select("header.idheader, SUM(detail_header.qty)as totalqty, SUM((detail_header.t*detail_header.l*detail_header.p*detail_header.qty)/1000000) as totalm3, ((SUM((detail_header.hargasatuan-detail_header.hargamodal)*detail_header.qty)) - header.diskon) as laba, user.username, header.date, pelanggan.namapelanggan, pelanggan.alamatpelanggan, SUM(header.totalharga) as totalharga,$jumlah")->from('header')
-					->join('detail_header', 'detail_header.idheader=header.idheader')
-					->join('user', 'user.iduser=header.iduser')
-					->join('pelanggan', 'pelanggan.idpelanggan=header.idpelanggan')
-					->where('header.date >=', $tglP)
-					->where('header.date <=', $tglK)
-					->where('header.status', 'pnj')
-					->like('header.iduser', $iduser)
-					->like('header.idpelanggan', $idpelanggan)
-					->group_by($group)
-					->order_by('detail_header.iddetail', 'desc')
-					->get()->result();
+					$data['data'] = $this->db->query($sql)->result();
 				
 					$data['jenis'] = $jenis;
 					$data['user'] = $iduser;
